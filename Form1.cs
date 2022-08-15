@@ -28,6 +28,43 @@ namespace WinFormAppPhoneBook
             myContacts.Contact.Add("joe h.", new Person("Joe H.","Roberts", "735-456-5345", "295-354-5643", "11 Mulberry Ave, The Empire, TT 34285"));
             dtGrdContacts.DataSource = myContacts.Contact.Values.ToList();
         }
+        private void btnAddContact_Click(object sender, EventArgs e)
+        {
+            string phonePattern = @"^\(?\d{3}\)?\s?[\-]?[0-9]{3}[\-]?[0-9]{4}$";
+            try
+            {
+                if (txtbxFirstName.Text == String.Empty)
+                    throw new ArgumentException("First Name field cannot be empty");
+                if (myContacts.Contact.ContainsKey(txtbxFirstName.Text.ToLower()))
+                    throw new ArgumentException(
+                    "You already have a contact with that first name.\nCannot have multiple contacts with same name.\nPlease add a number or middle initial after the name in First Name field to make it unique"
+                    );
+                if (txtbxCellPhone.Text != String.Empty && !Regex.IsMatch(txtbxCellPhone.Text, phonePattern) ||
+                    txtbxHomePhone.Text != String.Empty && !Regex.IsMatch(txtbxHomePhone.Text, phonePattern))
+                    throw new ArgumentException(
+                    "Phone number must be in one of these formats:\n\t123-456-7890\n\t(123) 456-7890\n\t(123)456-7890\n\t1234567890.\n\nDo not add country code before phone number. For example, +1 123-456-7890 is not authorized."
+                    );
+                string key = txtbxFirstName.Text.ToLower();
+                myContacts.Contact.Add(key, new Person(txtbxFirstName.Text, txtbxLastName.Text, txtbxCellPhone.Text, txtbxHomePhone.Text, txtbxAddress.Text));
+                MessageBox.Show("Record has been added");
+                RefreshAll();
+            }
+            catch (ArgumentException ex)
+            {
+                MessageBox.Show(ex.Message);
+            }
+        }
+
+        public void RefreshAll()
+        {
+            txtbxFirstName.Clear();
+            txtbxLastName.Clear();
+            txtbxCellPhone.Clear();
+            txtbxHomePhone.Clear();
+            txtbxAddress.Clear();
+            dtGrdContacts.DataSource = null;
+            dtGrdContacts.DataSource = myContacts.Contact.Values.ToList();
+        }
 
         private void btnSearchContact_Click(object sender, EventArgs e)
         {
@@ -53,6 +90,10 @@ namespace WinFormAppPhoneBook
             txtbxSearchName.Clear();
             btnSearchContact.Enabled = false;
         }
+        private void txtbxSearchName_TextChanged(object sender, EventArgs e)
+        {
+            btnSearchContact.Enabled = true;
+        }
 
         private void btnDisplayAllContacts_Click(object sender, EventArgs e)
         {
@@ -61,45 +102,6 @@ namespace WinFormAppPhoneBook
             grpDisplayContact.Text = "Contacts Display   (Currently displaying all contacts)";
         }
 
-        private void txtbxSearchName_TextChanged(object sender, EventArgs e)
-        {
-            btnSearchContact.Enabled = true;
-        }
-
-        private void btnAddContact_Click(object sender, EventArgs e)
-        {
-            if (txtbxFirstName.Text!=String.Empty) 
-            {
-                if (myContacts.Contact.ContainsKey(txtbxFirstName.Text.ToLower()))
-                {
-                    MessageBox.Show(
-                    "You already have a contact with that first name. Cannot have multiple contacts with same name.\nPlease add a number or middle initial after the name in First Name field"
-                    );
-                }
-                else
-                {
-                    string key = txtbxFirstName.Text.ToLower();
-                    myContacts.Contact.Add(key, new Person(txtbxFirstName.Text,txtbxLastName.Text,txtbxCellPhone.Text,txtbxHomePhone.Text,txtbxAddress.Text));
-                    MessageBox.Show("Record has been added");
-                    RefreshAll();
-                }
-            }
-            else
-            {
-                MessageBox.Show("First Name field cannot be empty");
-            }
-        }
-
-        public void RefreshAll()
-        {
-            txtbxFirstName.Clear();
-            txtbxLastName.Clear();
-            txtbxCellPhone.Clear();
-            txtbxHomePhone.Clear();
-            txtbxAddress.Clear();
-            dtGrdContacts.DataSource = null;
-            dtGrdContacts.DataSource = myContacts.Contact.Values.ToList();
-        }
         private void btnDeleteContact_Click(object sender, EventArgs e)
         {
             if (dtGrdContacts.RowCount < 1)
@@ -114,6 +116,7 @@ namespace WinFormAppPhoneBook
                     myContacts.Contact.Remove(dtGrdContacts.CurrentRow.Cells[0].Value.ToString().ToLower());
                     dtGrdContacts.DataSource = null;
                     dtGrdContacts.DataSource = myContacts.Contact.Values.ToList();
+                    grpDisplayContact.Text = "Contacts Display   (Currently displaying all contacts)";
                 }
             }
         }
