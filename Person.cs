@@ -11,12 +11,25 @@ using System.Threading.Tasks;
 
 namespace WinFormAppPhoneBook
 {
-    internal class Person
+    public class Person
     {
         public string FirstName { get; set; }
         public string LastName { get; set; }
         public string CellPhone { get; set; }
         public string HomePhone { get; set; }
         public string Address{ get; set; }
+        public Person(string FirstName, string LastName, string CellPhone, string HomePhone, string Address)
+        {
+            this.FirstName = FirstName;
+            this.LastName = LastName;
+            this.CellPhone = CellPhone;
+            this.HomePhone = HomePhone;
+            this.Address = Address;
+        }
+    }
+
+    class ContactBook
+    {
+        public Dictionary<string, Person> Contact = new Dictionary<string, Person>();
     }
 }
